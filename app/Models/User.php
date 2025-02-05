@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, HasUlids, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $table = 'users';
 
@@ -23,16 +23,19 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_login_id',
+        'user_auth_id',
         'user_role_id',
         'fullname',
+        'phone',
         'gender',
-        'date_of_birth'
+        'date_of_birth',
+        'is_active',
+        'is_blocked'
     ];
 
-    public function user_login(): BelongsTo
+    public function user_auth(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_login_id', 'id');
+        return $this->belongsTo(User::class, 'user_auth_id', 'id');
     }
 
     public function user_role(): BelongsTo

@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository implements UserRepositoryInterface
 {
-    protected $model;
+    public function __construct(
+        protected User $model
+    ) {
 
-    public function __construct(User $user)
-    {
-        $this->model = $user;
     }
 
     public function all(): Collection

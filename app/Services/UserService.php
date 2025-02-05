@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
-class UserService {
+class UserService
+{
     protected $userRepository;
 }

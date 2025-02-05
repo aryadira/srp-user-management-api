@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
-class UserRegisterRequest extends FormRequest
+class OTPRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +22,7 @@ class UserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fullname' => 'required',
-            'email' => 'required|email|unique:user_auth',
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'otp' => ['required', 'string']
         ];
     }
 }

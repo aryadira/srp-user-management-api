@@ -4,25 +4,35 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->foreignUlid('user_login_id')->constrained('user_logins')->onDelete('cascade');
-            $table->unsignedBigInteger('user_role_id');
-            $table->string('fullname')->nullable(false);
-            $table->string('date_of_birth')->nullable();
-            $table->enum('gender', ['m', 'f', 'u'])->default('u')->nullable();
-            $table->rememberToken();
-            $table->timestamps();
+            $table->id();
+            $table->foreignId('user_auth_id')
+                ->constrained('user_auth', 'id')
+                ->cascadeOnDelete()->name('users_user_auth_id_fk')->index();
 
-            $table->foreign('user_role_id')->references('id')->on('user_roles')->onDelete('cascade');
+            $table->foreignId('user_role_id')
+                    ->constrained('user_roles', 'id')
+                    ->cascadeOnDelete()->name('users_user_role_id_fk')->index();
+
+            $table->string('fullname');
+            $table->string('phone')->nullable()->index();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['male', 'female'])->default(null)->nullable();
+
+            $table->boolean('is_active')->default(1)->index();
+            $table->boolean('is_blocked')->default(0)->index();
+
+            $table->rememberToken();
+            $table->timestampsTz();
+            $table->softDeletes()->index();
         });
+
 
         // Schema::create('password_reset_tokens', function (Blueprint $table) {
         //     $table->string('email')->primary();
