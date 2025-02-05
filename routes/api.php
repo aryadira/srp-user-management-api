@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OTPController;
 use App\Http\Controllers\UserAuthController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,4 +13,5 @@ Route::get('/user', function (Request $request) {
 Route::post('user/register', [UserAuthController::class, 'register'])->name('user.auth.register');
 Route::post('user/login', [UserAuthController::class, 'login'])->name('user.auth.login');
 
-Route::post('otp/verify', [UserAuthController::class, 'verifyOTP'])->name('user.auth.otp.verify');
+Route::post('otp/verify', [OTPController::class, 'verify'])->name('otp.verify');
+Route::post('otp/resend', [OTPController::class, 'resend'])->name('otp.resend');

@@ -45,22 +45,6 @@ class UserAuthController extends Controller
         return $this->apiService->sendSuccess("OTP Sent!", $otp['status']);
     }
 
-    public function verifyOTP(Request $request)
-    {
-        $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'otpCode' => ['required', 'string']
-        ]);
-
-        $otp = Otp::identifier($request->email)->attempt($request->otpCode);
-
-        if ($otp['status'] != Otp::OTP_PROCESSED) {
-            return $this->apiService->sendForbidden("OTP is invalid!");
-        }
-
-        return $this->apiService->sendSuccess("OTP Verified", $this->userAuthRepository->findByEmail($request->email));
-    }
-
     public function login(Request $request)
     {
 
