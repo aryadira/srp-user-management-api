@@ -7,6 +7,7 @@ use App\Models\UserAuth;
 use App\Repositories\UserAuthRepository;
 use App\Traits\CommonUtilitiesTrait;
 use App\Traits\ApiTrait;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

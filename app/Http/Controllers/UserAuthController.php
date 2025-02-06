@@ -39,10 +39,10 @@ class UserAuthController extends Controller
         );
 
         if ($otp['status'] != Otp::OTP_SENT) {
-            return $this->apiService->sendError('Failed to send OTP');
+            return $this->apiService->sendError(Otp::OTP_FAILED_MESSAGE);
         }
 
-        return $this->apiService->sendSuccess("OTP Sent!", $otp['status']);
+        return $this->apiService->sendSuccess(Otp::OTP_SENT_MESSAGE, $otp['status']);
     }
 
     public function login(Request $request)

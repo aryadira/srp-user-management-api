@@ -4,6 +4,8 @@ namespace App\Otp;
 
 use App\Models\UserAuth;
 use App\Services\UserAuthService;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 use SadiqSalau\LaravelOtp\Contracts\OtpInterface as Otp;
 
 class UserRegistrationOtp implements Otp
@@ -25,7 +27,7 @@ class UserRegistrationOtp implements Otp
      */
     public function process()
     {
-        $userAuth = UserAuth::unguarded(function () {
+        UserAuth::unguarded(function () {
             return $this->userAuthService->register($this->data);
         });
     }

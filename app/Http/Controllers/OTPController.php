@@ -25,12 +25,14 @@ class OTPController extends Controller
         $otp = Otp::identifier($request->email)->attempt($request->code);
 
         if ($otp['status'] != Otp::OTP_PROCESSED) {
-            return $this->apiService->sendForbidden("OTP is invalid!");
+            return $this->apiService->sendForbidden(Otp::OTP_INVALID_MESSAGE);
         }
 
-        $newAuthUser = $this->userAuthRepository->findByEmail($request->email);
+        $user = $this->userAuthRepository->findByEmail($request->email);
 
-        return $this->apiService->sendSuccess("OTP Verified", $newAuthUser);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return $this->apiService->sendSuccess(Otp::OTP_VERIFIED_MESSAGE, compact('user', 'token'));
     }
 
     public function resend(Request $request)
@@ -42,9 +44,9 @@ class OTPController extends Controller
         $otp = Otp::identifier($request->email)->update();
 
         if ($otp['status'] != Otp::OTP_SENT) {
-            return $this->apiService->sendForbidden("Failed to send OTP!");
+            return $this->apiService->sendForbidden(Otp::OTP_FAILED_MESSAGE);
         }
 
-        return $this->apiService->sendSuccess("OTP Sent!", $otp['status']);
+        return $this->apiService->sendSuccess(Otp::OTP_SENT_MESSAGE, $otp['status']);
     }
 }

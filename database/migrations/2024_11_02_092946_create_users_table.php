@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_auth_id')
-                ->constrained('user_auth', 'id')
-                ->cascadeOnDelete()->name('users_user_auth_id_fk')->index();
+                    ->constrained('user_auth', 'id')
+                    ->cascadeOnDelete()->name('users_user_auth_id_fk')->index();
 
             $table->foreignId('user_role_id')
                     ->constrained('user_roles', 'id')
