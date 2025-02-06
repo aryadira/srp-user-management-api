@@ -20,11 +20,6 @@ class UserAuthRepository implements UserAuthRepositoryInterface
     {
         return $this->model->create($data);
     }
-    public function login(array $data): UserAuth
-    {
-        $ket = "belom";
-        return $this->model->create($data);
-    }
 
     public function findByEmail(string $email): ?UserAuth
     {

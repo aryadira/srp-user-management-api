@@ -54,15 +54,31 @@ class UserAuthService
 
     public function authenticate($credentials)
     {
-        if (Auth::attempt($credentials)) {
-            return Auth::user();
+        if (!isset($credentials['email'], $credentials['password'])) {
+            return null;
         }
 
-        return null;
+        if (!Auth::attempt($credentials)) {
+            return null;
+        }
+
+        $user = UserAuth::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return null;
+        }
+
+        if (!$user->is_verified == 0) {
+            return null;
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return $token;
     }
 
-    public function logout()
+    public function logout($authUser)
     {
-        Auth::logout();
+        return $authUser->currentAccessToken()->delete();
     }
 }

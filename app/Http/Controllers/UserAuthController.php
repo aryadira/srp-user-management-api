@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Api;
+use App\Http\Requests\UserLoginRequest;
 use App\Http\Requests\UserRegisterRequest;
 use App\Models\User;
 use App\Models\UserAuth;
@@ -45,9 +46,30 @@ class UserAuthController extends Controller
         return $this->apiService->sendSuccess(Otp::OTP_SENT_MESSAGE, $otp['status']);
     }
 
-    public function login(Request $request)
+    public function login(UserLoginRequest $request)
     {
+        $data = $request->validated();
 
+        $authenticate = $this->userAuthService->authenticate($data);
+
+        if (!$authenticate) {
+            return $this->apiService->sendUnauthorized('Invalid email or password');
+        }
+
+        return $this->apiService->sendSuccess('Login successfully!', [
+            'token' => $authenticate
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        if (!$request->user()) {
+            return $this->apiService->sendUnauthorized();
+        }
+
+        $this->userAuthService->logout($request->user());
+
+        return $this->apiService->sendSuccess('Logout successfully!');
     }
 }
 
