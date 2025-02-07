@@ -21,8 +21,7 @@ class UserAuthController extends Controller
 
     public function __construct(
         protected APIService $apiService,
-        protected UserAuthService $userAuthService,
-        protected UserAuthRepository $userAuthRepository
+        protected UserAuthService $userAuthService
     ) {
 
     }
