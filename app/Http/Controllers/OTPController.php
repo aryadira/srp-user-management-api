@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OTPRequest;
+use App\Models\UserLog;
 use App\Repositories\UserAuthRepository;
 use App\Services\APIService;
 use App\Services\UserAuthService;
@@ -28,11 +29,13 @@ class OTPController extends Controller
             return $this->apiService->sendForbidden(Otp::OTP_INVALID_MESSAGE);
         }
 
-        $user = $this->userAuthRepository->findByEmail($request->email);
+        $userAuth = $this->userAuthRepository->findByEmail($request->email);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $this->userAuthService->generateAuthLogHistory($userAuth, 'login');
 
-        return $this->apiService->sendSuccess(Otp::OTP_VERIFIED_MESSAGE, compact('user', 'token'));
+        $token = $userAuth->createToken('auth_token')->plainTextToken;
+
+        return $this->apiService->sendSuccess(Otp::OTP_VERIFIED_MESSAGE, compact('userAuth', 'token'));
     }
 
     public function resend(Request $request)

@@ -4,10 +4,9 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\UserAuth;
+use App\Models\UserLog;
 use App\Repositories\UserAuthRepository;
 use App\Traits\CommonUtilitiesTrait;
-use App\Traits\ApiTrait;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -48,13 +47,18 @@ class UserAuthService
                 'gender' => null,
             ]);
 
+            $this->generateAuthLogHistory($userAuth, action: 'register');
+
             return compact('userAuth', 'userData');
         });
     }
 
     public function authenticate($credentials)
     {
-        if (!isset($credentials['email'], $credentials['password'])) {
+        $email = $credentials['email'];
+        $password = $credentials['password'];
+
+        if (!isset($email, $password)) {
             return null;
         }
 
@@ -62,23 +66,47 @@ class UserAuthService
             return null;
         }
 
-        $user = UserAuth::where('email', $credentials['email'])->first();
+        $userAuth = UserAuth::where('email', $email)->first();
 
-        if (!$user) {
+        if (!$userAuth) {
             return null;
         }
 
-        if (!$user->is_verified == 0) {
+        if (!$userAuth->is_verified == 0) {
             return null;
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $this->generateAuthLogHistory($userAuth, 'login');
+
+        $token = $userAuth->createToken('auth_token')->plainTextToken;
 
         return $token;
     }
 
     public function logout($authUser)
     {
+        $this->generateAuthLogHistory($authUser, 'logout');
+
         return $authUser->currentAccessToken()->delete();
+    }
+
+    public function generateAuthLogHistory($userAuth, $action)
+    {
+        if ($userAuth) {
+            $userAuth->update([
+                'last_login_at' => now(),
+                'last_login_ip' => request()->ip()
+            ]);
+
+            UserLog::create([
+                'user_auth_id' => $userAuth->id,
+                'action' => $action,
+                'description' => null,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+        }
+
+        return null;
     }
 }
