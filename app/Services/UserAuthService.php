@@ -101,7 +101,7 @@ class UserAuthService
             UserLog::create([
                 'user_auth_id' => $userAuth->id,
                 'action' => $action,
-                'description' => null,
+                'description' => $userAuth->username,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent()
             ]);
