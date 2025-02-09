@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\UserAuth;
 use App\Models\UserLog;
 use App\Repositories\UserAuthRepository;
+use App\Repositories\UserRepository;
 use App\Traits\CommonUtilitiesTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class UserAuthService
 
     public function __construct(
         protected UserAuthRepository $userAuthRepository,
-        protected User $userRepository
+        protected UserRepository $userRepository
     ) {
     }
 
@@ -53,7 +53,7 @@ class UserAuthService
         });
     }
 
-    public function authenticate($credentials)
+    public function authenticate($credentials): string|null
     {
         $email = $credentials['email'];
         $password = $credentials['password'];
@@ -62,17 +62,17 @@ class UserAuthService
             return null;
         }
 
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::guard('web')->attempt($credentials)) {
             return null;
         }
 
-        $userAuth = UserAuth::where('email', $email)->first();
+        $userAuth = $this->userAuthRepository->findByEmail($email);
 
-        if (!$userAuth) {
+        if (!$userAuth || !Hash::check($password, $userAuth->password)) {
             return null;
         }
 
-        if (!$userAuth->is_verified == 0) {
+        if (!$userAuth->is_verified == 1) {
             return null;
         }
 

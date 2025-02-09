@@ -47,12 +47,12 @@ class UserAuthController extends Controller
 
     public function login(UserLoginRequest $request)
     {
-        $data = $request->validated();
+        $credentials = $request->validated();
 
-        $authenticate = $this->userAuthService->authenticate($data);
+        $authenticate = $this->userAuthService->authenticate($credentials);
 
         if (!$authenticate) {
-            return $this->apiService->sendUnauthorized('Invalid email or password');
+            return $this->apiService->sendError('Invalid email or password');
         }
 
         return $this->apiService->sendSuccess('Login successfully!', [
