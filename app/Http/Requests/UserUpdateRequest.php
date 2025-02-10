@@ -26,7 +26,6 @@ class UserUpdateRequest extends FormRequest
             'phone' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:male,female',
-            'email' => 'required|email',
         ];
     }
 }

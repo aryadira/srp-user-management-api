@@ -4,19 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRegisterRequest;
 use App\Http\Requests\UserUpdateRequest;
-use App\Models\UserLog;
+use App\Models\User;
 use App\Services\APIService;
-use App\Services\UserAuthService;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function __construct(
         protected UserService $userService,
-        protected UserAuthService $userAuthService,
         protected APIService $apiService
     ) {
     }
@@ -31,7 +28,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $newUser = $this->userAuthService->register($data);
+        $newUser = $this->userService->createUser($data);
 
         return $this->apiService->sendSuccess('User registeration succssfully', $newUser);
     }
@@ -45,11 +42,13 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        $updateUser = $this->userService->updateUser($data, $id);
+        $existingUser = $this->userService->findUserById($id);
 
-        if (!$updateUser) {
+        if (!$existingUser) {
             return $this->apiService->sendNotFound('User not found, failed to update!');
         }
+
+        $this->userService->updateUser($data, $id);
 
         return $this->apiService->sendSuccess('User updated successfully!');
     }

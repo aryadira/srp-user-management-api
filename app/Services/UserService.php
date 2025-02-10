@@ -35,7 +35,7 @@ class UserService
     // jadi satu sama register di UserAuthService
     public function createUser($data)
     {
-
+        return $this->userAuthService->register($data);
     }
 
     public function updateUser($user, $id)
