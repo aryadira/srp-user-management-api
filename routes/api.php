@@ -2,21 +2,33 @@
 
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\UserAuthController;
+use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('auth/register', [UserAuthController::class, 'register'])->name('auth.register');
-Route::post('auth/login', [UserAuthController::class, 'login'])->name('auth.login');
+Route::prefix('auth')->name('auth.')->group(function () {
+    Route::post('register', [UserAuthController::class, 'register'])->name('register');
+    Route::post('login', [UserAuthController::class, 'login'])->name('login');
+    Route::delete('logout', [UserAuthController::class, 'logout'])->name('logout')->middleware('auth:sanctum');
+});
 
-Route::post('otp/verify', [OTPController::class, 'verify'])->name('otp.verify');
-Route::post('otp/resend', [OTPController::class, 'resend'])->name('otp.resend');
+Route::prefix('otp')->name('otp.')->group(function () {
+    Route::post('verify', [OTPController::class, 'verify'])->name('verify');
+    Route::post('resend', [OTPController::class, 'resend'])->name('resend');
+});
 
-
-Route::middleware('auth:sanctum')->group(function(){
-    Route::get('/user', function (Request $request) {
-        return User::limit(10)->get();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('role:admin,superadmin')->group(function () {
+        Route::prefix('user')->name('user.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::post('/', [UserController::class, 'store'])->name('store');
+            Route::put('{user}', [UserController::class, 'update'])->name('update');
+            Route::delete('{user}/{type}/delete', [UserController::class, 'destroy'])->where('type', 'temporary|permanent')->name('destroy');
+        });
     });
 
-    Route::delete('auth/logout', [UserAuthController::class, 'logout'])->name('auth.logout');
+    Route::middleware('role:customer')->group(function () {
+
+    });
 });

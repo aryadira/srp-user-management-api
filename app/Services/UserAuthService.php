@@ -30,21 +30,21 @@ class UserAuthService
 
             $data['password'] = Hash::make($data['password']);
 
+            $userData = $this->userRepository->create([
+                'user_role_id' => $data['role'] ?? 3, // 3 = customer role default
+                'fullname' => $data['fullname'],
+                'date_of_birth' => null,
+                'gender' => null,
+            ]);
+
             $userAuth = $this->userAuthRepository->register([
+                'user_id' => $userData->id,
                 'username' => $username,
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'email_verified_at' => now(),
                 'is_verified' => 1,
                 'user_verified_at' => now()
-            ]);
-
-            $userData = $this->userRepository->create([
-                'user_auth_id' => $userAuth->id,
-                'user_role_id' => $data['role'] ?? 3, // 3 = customer role default
-                'fullname' => $data['fullname'],
-                'date_of_birth' => null,
-                'gender' => null,
             ]);
 
             $this->generateAuthLogHistory($userAuth, action: 'register');
@@ -93,15 +93,18 @@ class UserAuthService
     public function generateAuthLogHistory($userAuth, $action)
     {
         if ($userAuth) {
+            $user_id = $userAuth->user_id;
+            $username = $userAuth->username;
+
             $userAuth->update([
                 'last_login_at' => now(),
                 'last_login_ip' => request()->ip()
             ]);
 
             UserLog::create([
-                'user_auth_id' => $userAuth->id,
+                'user_id' => $user_id,
                 'action' => $action,
-                'description' => $userAuth->username,
+                'description' => "User {$username} {$action}",
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent()
             ]);
@@ -109,4 +112,5 @@ class UserAuthService
 
         return null;
     }
+
 }

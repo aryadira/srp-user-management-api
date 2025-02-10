@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -17,6 +19,7 @@ class UserAuth extends Authenticatable
     protected $table = 'user_auth';
 
     protected $fillable = [
+        'user_id',
         'username',
         'email',
         'password',
@@ -51,8 +54,8 @@ class UserAuth extends Authenticatable
     //     return false;
     // }
 
-    public function user(): HasOne
+    public function user(): BelongsTo
     {
-        return $this->hasOne(User::class, 'user_auth_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

@@ -12,6 +12,9 @@ return new class extends Migration {
     {
         Schema::create('user_auth', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')->constrained(table: 'users')->cascadeOnDelete();
+
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('password')->nullable(false);
@@ -36,6 +39,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_logins');
+        Schema::dropIfExists('user_auth');
     }
 };

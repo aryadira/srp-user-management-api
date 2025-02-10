@@ -12,13 +12,8 @@ return new class extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_auth_id')
-                    ->constrained('user_auth', 'id')
-                    ->cascadeOnDelete()->name('users_user_auth_id_fk')->index();
 
-            $table->foreignId('user_role_id')
-                    ->constrained('user_roles', 'id')
-                    ->cascadeOnDelete()->name('users_user_role_id_fk')->index();
+            $table->foreignId('user_role_id')->constrained('user_roles')->cascadeOnDelete();
 
             $table->string('fullname');
             $table->string('phone')->nullable()->index();

@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Model
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'users';
 
@@ -23,7 +25,6 @@ class User extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_auth_id',
         'user_role_id',
         'fullname',
         'phone',
@@ -33,9 +34,9 @@ class User extends Model
         'is_blocked'
     ];
 
-    public function user_auth(): BelongsTo
+    public function user_auth(): HasOne
     {
-        return $this->belongsTo(User::class, 'user_auth_id', 'id');
+        return $this->hasOne(UserAuth::class, 'user_id', 'id');
     }
 
     public function user_role(): BelongsTo
