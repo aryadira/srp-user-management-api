@@ -95,7 +95,7 @@ class UserController extends Controller
         $users = $this->userService->searchUser($keyword);
 
         if ($users->isEmpty()) {
-            return $this->apiService->sendError("No users found");
+            return $this->apiService->sendError("No result found");
         }
 
         return $this->apiService->sendSuccess("Search result found...", $users);
