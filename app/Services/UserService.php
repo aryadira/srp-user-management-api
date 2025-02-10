@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\UserAuth;
+use App\Models\UserLog;
 use App\Models\UserRole;
 use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -77,12 +78,6 @@ class UserService
 
         if (!$existingUser) {
             return false;
-        }
-
-        $userAuth = UserAuth::where('user_id', $existingUser->id)->first();
-
-        if ($userAuth) {
-            $this->userAuthService->generateAuthLogHistory($userAuth, 'force deleted');
         }
 
         $existingUser->forceDelete();
