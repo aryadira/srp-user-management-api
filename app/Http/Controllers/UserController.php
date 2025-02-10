@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRegisterRequest;
 use App\Http\Requests\UserUpdateRequest;
-use App\Models\User;
+use App\Notifications\UserStatusChanged;
 use App\Services\APIService;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -69,10 +70,10 @@ class UserController extends Controller
 
         switch ($type) {
             case 'temporary':
-                $isDeleted = $this->temporaryDelete($id);
+                $isDeleted = $this->userService->softDeleteUser($id);
                 break;
             case 'permanent':
-                $isDeleted = $this->permanentDelete($id);
+                $isDeleted = $this->userService->forceDeleteUser($id);
                 break;
         }
 
@@ -83,14 +84,59 @@ class UserController extends Controller
         return $this->apiService->sendSuccess("User $type deleted successfully!");
     }
 
-    public function temporaryDelete(string $id)
+    public function search(Request $request)
     {
-        return $this->userService->softDeleteUser($id);
+        $keyword = $request->query('q');
+
+        if (!$keyword) {
+            return $this->apiService->sendError("Keyword is required");
+        }
+
+        $users = $this->userService->searchUser($keyword);
+
+        if ($users->isEmpty()) {
+            return $this->apiService->sendError("No users found");
+        }
+
+        return $this->apiService->sendSuccess("Search result found...", $users);
     }
 
-    public function permanentDelete(string $id)
+    public function assignRole($user, $roleId)
     {
-        return $this->userService->forceDeleteUser($id);
+
+    }
+
+    public function changeUserStatus($id, string $status)
+    {
+        $user = $this->userService->findUserById($id);
+
+        if (!$user) {
+            return $this->apiService->sendNotFound("User not found");
+        }
+
+        $statusMap = [
+            'activate' => ['is_active' => 1, 'message' => 'User is already activated!', 'success' => 'User activated successfully!'],
+            'deactivate' => ['is_active' => 0, 'message' => 'User is already deactivated!', 'success' => 'User deactivated successfully!'],
+            'block' => ['is_blocked' => 1, 'message' => 'User is already blocked!', 'success' => 'User blocked successfully!'],
+            'unblock' => ['is_blocked' => 0, 'message' => 'User is already unblocked!', 'success' => 'User unblocked successfully!'],
+        ];
+
+        if (!isset($statusMap[$status])) {
+            return $this->apiService->sendError('Invalid status');
+        }
+
+        $field = key($statusMap[$status]);
+        $value = $statusMap[$status][$field];
+
+        if ($user->$field == $value) {
+            return $this->apiService->sendError($statusMap[$status]['message']);
+        }
+
+        $user->update([$field => $value]);
+
+        $user->notify(new UserStatusChanged($status));
+
+        return $this->apiService->sendSuccess($statusMap[$status]['success']);
     }
 
 }

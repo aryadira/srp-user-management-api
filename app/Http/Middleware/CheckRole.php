@@ -24,7 +24,7 @@ class CheckRole
 
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        $authUser = User::where('id', $request->user()->user_id)->first();
+        $authUser = User::where('id', $request->user()->id)->first();
 
         if (!$authUser) {
             return $this->apiService->sendNotFound('User not found!');

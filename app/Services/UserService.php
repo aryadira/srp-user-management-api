@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\UserAuth;
 use App\Models\UserLog;
 use App\Models\UserRole;
@@ -83,6 +84,17 @@ class UserService
         $existingUser->forceDelete();
 
         return true;
+    }
+
+    public function searchUser($keyword)
+    {
+        return User::with('user_auth')
+            ->where('fullname', 'LIKE', "%{$keyword}%")
+            ->orWhereHas('user_auth', function ($query) use ($keyword) {
+                $query->where('email', 'LIKE', "%{$keyword}%")
+                    ->orWhere('username', 'LIKE', "%{$keyword}%");
+            })
+            ->paginate(10);
     }
 
 }
