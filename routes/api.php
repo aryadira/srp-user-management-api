@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('user')->name('user.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::post('/', [UserController::class, 'store'])->name('store');
+            Route::get('{user}', [UserController::class, 'show'])->name('show');
             Route::put('{user}', [UserController::class, 'update'])->name('update');
             Route::delete('{user}/{type}/delete', [UserController::class, 'destroy'])->where('type', 'temporary|permanent')->name('destroy');
         });

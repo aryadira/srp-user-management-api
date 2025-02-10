@@ -35,7 +35,13 @@ class UserController extends Controller
 
     public function show(string $id)
     {
-        return $this->userService->findUserById($id);
+        $existingUser = $this->userService->findUserById($id);
+
+        if (!$existingUser) {
+            return $this->apiService->sendNotFound('User not found');
+        }
+
+        return $this->apiService->sendSuccess("User found", $existingUser);
     }
 
     public function update(UserUpdateRequest $request, string $id): JsonResponse
