@@ -16,7 +16,9 @@ class UserRepository implements UserRepositoryInterface
 
     public function all(): Collection
     {
-        return $this->user->all();
+        $users = User::with('user_auth')->get();
+
+        return $users;
     }
 
     public function find(string $id): ?User
