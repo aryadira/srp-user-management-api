@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRegisterRequest;
+use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Notifications\UserStatusChanged;
 use App\Services\APIService;
@@ -19,19 +20,21 @@ class UserController extends Controller
     ) {
     }
 
-    public function index(): Collection
+    public function index(): JsonResponse
     {
-        return $this->userService->getAllUsers();
+        $users = $this->userService->getAllUsers();
+
+        return $this->apiService->sendSuccess('All users', $users);
     }
 
     // add user without otp
-    public function store(UserRegisterRequest $request): JsonResponse
+    public function store(UserStoreRequest $request): JsonResponse
     {
         $data = $request->validated();
 
         $newUser = $this->userService->createUser($data);
 
-        return $this->apiService->sendSuccess('User registeration succssfully', $newUser);
+        return $this->apiService->sendSuccess('User registeration successfully', $newUser);
     }
 
     public function show(string $id)

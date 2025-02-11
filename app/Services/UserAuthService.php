@@ -33,8 +33,9 @@ class UserAuthService
             $userData = $this->userRepository->create([
                 'user_role_id' => $data['role'] ?? 3, // 3 = customer role default
                 'fullname' => $data['fullname'],
-                'date_of_birth' => null,
-                'gender' => null,
+                'phone' => $data['phone'],
+                'date_of_birth' => $data['date_of_birth'],
+                'gender' => $data['gender'],
             ]);
 
             $userAuth = $this->userAuthRepository->register([
